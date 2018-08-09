@@ -45,6 +45,7 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
     private static final String GERRIT_SETTINGS_TAG = "GerritSettings";
     private static final String LOGIN = "Login";
     private static final String HOST = "Host";
+    private static final String KERBEROS_ENABLED = "KerberosEnabled";
     private static final String AUTOMATIC_REFRESH = "AutomaticRefresh";
     private static final String LIST_ALL_CHANGES = "ListAllChanges";
     private static final String REFRESH_TIMEOUT = "RefreshTimeout";
@@ -58,6 +59,7 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
 
     private String login = "";
     private String host = "";
+    private boolean kerberosEnabled = false;
     private boolean listAllChanges = false;
     private boolean automaticRefresh = true;
     private int refreshTimeout = 15;
@@ -76,6 +78,8 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
         final Element element = new Element(GERRIT_SETTINGS_TAG);
         element.setAttribute(LOGIN, (getLogin() != null ? getLogin() : ""));
         element.setAttribute(HOST, (getHost() != null ? getHost() : ""));
+        element.setAttribute(KERBEROS_ENABLED, Boolean.toString(getKerberosEnabled()));
+
         element.setAttribute(LIST_ALL_CHANGES, Boolean.toString(getListAllChanges()));
         element.setAttribute(AUTOMATIC_REFRESH, Boolean.toString(getAutomaticRefresh()));
         element.setAttribute(REFRESH_TIMEOUT, Integer.toString(getRefreshTimeout()));
@@ -93,6 +97,7 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
         try {
             setLogin(element.getAttributeValue(LOGIN));
             setHost(element.getAttributeValue(HOST));
+            setKerberosEnabled(getBooleanValue(element, KERBEROS_ENABLED));
 
             setListAllChanges(getBooleanValue(element, LIST_ALL_CHANGES));
             setAutomaticRefresh(getBooleanValue(element, AUTOMATIC_REFRESH));
@@ -154,6 +159,10 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
         return preloadedPassword.or("");
     }
 
+    public boolean getKerberosEnabled() {
+        return kerberosEnabled;
+    }
+
     public boolean preloadPassword() {
         String password = null;
         try {
@@ -186,6 +195,11 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
     @Override
     public boolean isLoginAndPasswordAvailable() {
         return !Strings.isNullOrEmpty(getLogin());
+    }
+
+    @Override
+    public boolean isKerberosAuth() {
+        return kerberosEnabled;
     }
 
     public boolean getListAllChanges() {
@@ -231,6 +245,11 @@ public class GerritSettings implements PersistentStateComponent<Element>, Gerrit
     public void setHost(final String host) {
         this.host = host;
     }
+
+    public void setKerberosEnabled(final boolean enabled) {
+        this.kerberosEnabled = enabled;
+    }
+
 
     public void setAutomaticRefresh(final boolean automaticRefresh) {
         this.automaticRefresh = automaticRefresh;

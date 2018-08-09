@@ -43,8 +43,10 @@ public class LoginPanel {
     private JPanel pane;
     private JBTextField hostTextField;
     private JTextField loginTextField;
+    private JCheckBox kerberosEnabledCheckBox;
     private JPasswordField passwordField;
     private JTextPane gerritLoginInfoTestField;
+    private JCheckBox kerberosEnabled;
 
     public LoginPanel(final LoginDialog dialog) {
         hostTextField.getEmptyText().setText("https://review.example.org");
@@ -84,6 +86,8 @@ public class LoginPanel {
         passwordField.setText(password);
     }
 
+    public void setKerberosEnabled(final boolean enabled) {kerberosEnabled.setSelected(enabled);}
+
     public String getHost() {
         return hostTextField.getText().trim();
     }
@@ -95,6 +99,8 @@ public class LoginPanel {
     public String getPassword() {
         return String.valueOf(passwordField.getPassword());
     }
+
+    public boolean getKerberosEnabled() { return  kerberosEnabled.isSelected(); }
 
     public JComponent getPreferrableFocusComponent() {
         return hostTextField.getText().isEmpty() ? hostTextField : loginTextField;

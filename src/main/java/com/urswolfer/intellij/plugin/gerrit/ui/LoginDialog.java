@@ -53,6 +53,7 @@ public class LoginDialog extends DialogWrapper {
         loginPanel.setHost(gerritSettings.getHost());
         loginPanel.setLogin(gerritSettings.getLogin());
         loginPanel.setPassword(gerritSettings.getPassword());
+        loginPanel.setKerberosEnabled(gerritSettings.getKerberosEnabled());
         setTitle("Login to Gerrit");
         setOKButtonText("Login");
         init();
@@ -82,9 +83,18 @@ public class LoginDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         final String login = loginPanel.getLogin();
-        final String password = loginPanel.getPassword();
+        String password = null;
+        final boolean kereberosEnabled = loginPanel.getKerberosEnabled();
         final String host = loginPanel.getHost();
-        GerritAuthData.Basic gerritAuthData = new GerritAuthData.Basic(host, login, password);
+        GerritAuthData gerritAuthData;
+        if(loginPanel.getKerberosEnabled()){
+            gerritAuthData = new GerritAuthData.Kerberos(host);
+        }
+        else {
+            password = loginPanel.getPassword();
+            gerritAuthData = new GerritAuthData.Basic(host, login, password);
+        }
+        gerritSettings.setKerberosEnabled(kereberosEnabled);
         try {
             boolean loggedSuccessfully = gerritUtil.checkCredentials(project, gerritAuthData);
             if (loggedSuccessfully) {
@@ -97,7 +107,9 @@ public class LoginDialog extends DialogWrapper {
             }
         } catch (Exception e) {
             log.info(e);
-            setErrorText("Can't login: " + gerritUtil.getErrorTextFromException(e));
+            setErrorText("Can't login: " + e.getMessage());
+
+//            setErrorText("Can't login: " + gerritUtil.getErrorTextFromException(e));
         }
     }
 

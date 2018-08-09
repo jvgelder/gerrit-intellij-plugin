@@ -69,6 +69,7 @@ public class GerritSettingsConfigurable implements SearchableConfigurable, VcsCo
         return settingsPane != null && (!Comparing.equal(gerritSettings.getLogin(), settingsPane.getLogin()) ||
                 isPasswordModified() ||
                 !Comparing.equal(gerritSettings.getHost(), settingsPane.getHost()) ||
+                !Comparing.equal(gerritSettings.getKerberosEnabled(), settingsPane.getKerberosEnabled()) ||
                 !Comparing.equal(gerritSettings.getAutomaticRefresh(), settingsPane.getAutomaticRefresh()) ||
                 !Comparing.equal(gerritSettings.getListAllChanges(), settingsPane.getListAllChanges()) ||
                 !Comparing.equal(gerritSettings.getRefreshTimeout(), settingsPane.getRefreshTimeout()) ||
@@ -92,6 +93,7 @@ public class GerritSettingsConfigurable implements SearchableConfigurable, VcsCo
                 settingsPane.resetPasswordModification();
             }
             gerritSettings.setHost(settingsPane.getHost());
+            gerritSettings.setKerberosEnabled(settingsPane.getKerberosEnabled());
             gerritSettings.setListAllChanges(settingsPane.getListAllChanges());
             gerritSettings.setAutomaticRefresh(settingsPane.getAutomaticRefresh());
             gerritSettings.setRefreshTimeout(settingsPane.getRefreshTimeout());
@@ -113,6 +115,7 @@ public class GerritSettingsConfigurable implements SearchableConfigurable, VcsCo
             settingsPane.setPassword(StringUtil.isEmptyOrSpaces(login) ? "" : DEFAULT_PASSWORD_TEXT);
             settingsPane.resetPasswordModification();
             settingsPane.setHost(gerritSettings.getHost());
+            settingsPane.setKerberosEnabled(gerritSettings.getKerberosEnabled());
             settingsPane.setListAllChanges(gerritSettings.getListAllChanges());
             settingsPane.setAutomaticRefresh(gerritSettings.getAutomaticRefresh());
             settingsPane.setRefreshTimeout(gerritSettings.getRefreshTimeout());

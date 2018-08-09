@@ -47,6 +47,7 @@ import java.awt.event.FocusEvent;
 public class SettingsPanel {
     private JTextField loginTextField;
     private JPasswordField passwordField;
+    private JCheckBox kerberosEnabledCheckBox;
     private JTextPane gerritLoginInfoTextField;
     private JPanel loginPane;
     private JButton testButton;
@@ -80,14 +81,25 @@ public class SettingsPanel {
         testButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String password = isPasswordModified() ? getPassword() : gerritSettings.getPassword();
+                String password;
                 String host = getHost();
+                GerritAuthData gerritAuthData;
                 if (Strings.isNullOrEmpty(host)) {
                     Messages.showErrorDialog(pane, "Required field URL not specified", "Test Failure");
                     return;
                 }
                 try {
-                    GerritAuthData.Basic gerritAuthData = new GerritAuthData.Basic(host, getLogin(), password);
+                    if(getKerberosEnabled()){
+                        gerritAuthData = new GerritAuthData.Kerberos(host);
+                        Messages.showInfoMessage(pane, "Kerberos on", "Kerberos ON!");
+
+                    }
+                    else {
+                        password= isPasswordModified() ? getPassword() : gerritSettings.getPassword();
+                        gerritAuthData = new GerritAuthData.Basic(host, getLogin(), password);
+                        Messages.showInfoMessage(pane, "SHIT MODE on", "SHIT MODE ON!");
+                        setPassword(password);
+                    }
                     if (gerritUtil.checkCredentials(ProjectManager.getInstance().getDefaultProject(), gerritAuthData)) {
                         Messages.showInfoMessage(pane, "Connection successful", "Success");
                     } else {
@@ -95,10 +107,11 @@ public class SettingsPanel {
                     }
                 } catch (Exception ex) {
                     log.info(ex);
+                    Messages.showInfoMessage(pane, ex.getMessage(), "zut");
                     Messages.showErrorDialog(pane, String.format("Can't login to %s: %s", host, gerritUtil.getErrorTextFromException(ex)),
                             "Login Failure");
                 }
-                setPassword(password);
+                setKerberosEnabled(getKerberosEnabled());
             }
         });
 
@@ -163,6 +176,17 @@ public class SettingsPanel {
         passwordField.setText(StringUtil.isEmpty(password) ? null : password);
     }
 
+    public void setKerberosEnabled(final boolean enabled){
+        kerberosEnabledCheckBox.setSelected(enabled );
+        if(enabled){
+            passwordField.setEnabled(false);
+            loginTextField.setEnabled(false);
+        }else {
+            passwordField.setEnabled(true);
+            loginTextField.setEnabled(true);
+        }
+    }
+
     public String getLogin() {
         return loginTextField.getText().trim();
     }
@@ -177,6 +201,10 @@ public class SettingsPanel {
 
     public String getHost() {
         return hostTextField.getText().trim();
+    }
+
+    public boolean getKerberosEnabled() {
+        return kerberosEnabledCheckBox.isSelected();
     }
 
     public boolean getListAllChanges() {
